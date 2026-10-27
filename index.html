@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080808">
+<title>PC ZONE PANEL</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #080808;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+.hidden {
+    display: none !important;
+}
+
+button, input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    transition: .2s;
+}
+
+button:active {
+    transform: scale(.97);
+}
+
+/* หน้าใส่คีย์ */
+
+#keyPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.key-box {
+    width: 100%;
+    max-width: 360px;
+}
+
+.key-input {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 10px;
+    outline: none;
+    margin-bottom: 12px;
+}
+
+.key-input:focus {
+    border-color: #f22;
+}
+
+.primary-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    background: #e92332;
+    color: white;
+    font-weight: bold;
+}
+
+#error {
+    text-align: center;
+    color: #ff5252;
+    font-size: 13px;
+    margin-top: 12px;
+}
+
+/* แผงควบคุม */
+
+#panelPage {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+    padding: 16px;
+}
+
+.header {
+    padding: 22px;
+    border: 1px solid #292929;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #191919, #080808);
+    margin-bottom: 22px;
+}
+
+.header h1 {
+    color: #ff3030;
+    margin: 0 0 8px;
+    font-size: 26px;
+}
+
+.header p {
+    margin: 0;
+    color: #999;
+    font-size: 12px;
+}
+
+.section-title {
+    margin: 24px 0 12px;
+    color: #ff3838;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.card {
+    background: #111;
+    border: 1px solid #292929;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.description {
+    color: #999;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.toggle {
+    min-width: 85px;
+    padding: 11px;
+    color: #fff;
+    background: #d62828;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.toggle.on {
+    background: #16a34a;
+}
+
+.field {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #383838;
+    background: #080808;
+    color: white;
+    outline: none;
+}
+
+.field:focus {
+    border-color: #e92332;
+}
+
+.action {
+    width: 100%;
+    padding: 13px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 8px;
+    background: #e92332;
+    color: #fff;
+    font-weight: bold;
+}
+
+.secondary {
+    background: #262626;
+}
+
+.status {
+    margin-top: 12px;
+    padding: 12px;
+    background: #191919;
+    border-radius: 8px;
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.success {
+    color: #4ade80;
+}
+
+.anti-ban {
+    border-color: #174d2b;
+}
+
+.anti-ban .label {
+    color: #4ade80;
+}
+
+footer {
+    text-align: center;
+    padding: 25px 0;
+    color: #666;
+    font-size: 12px;
+}
+
+/* หน้าต่างแจ้งเตือน */
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translate(-50%, 20px);
+    width: calc(100% - 32px);
+    max-width: 380px;
+    padding: 16px;
+    border: 1px solid #333;
+    border-radius: 12px;
+    background: #171717;
+    box-shadow: 0 10px 40px #0009;
+    opacity: 0;
+    pointer-events: none;
+    transition: .25s;
+    z-index: 10;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.toast-title {
+    color: #4ade80;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- หน้าแรก: กรอกคีย์เท่านั้น -->
+
+<section id="keyPage">
+    <div class="key-box">
+
+        <input
+            id="keyInput"
+            class="key-input"
+            type="password"
+            placeholder="กรอกคีย์"
+            autocomplete="off"
+            aria-label="กรอกคีย์เพื่อเข้าใช้งาน"
+        >
+
+        <button
+            class="primary-btn"
+            id="enterBtn"
+            type="button"
+            onclick="verifyKey()"
+        >
+            ยืนยัน
+        </button>
+
+        <div id="error" role="alert"></div>
+
+    </div>
+</section>
+
+<!-- หน้าแผงควบคุม -->
+
+<main id="panelPage" class="hidden">
+
+    <header class="header">
+        <h1>PC ZONE PANEL</h1>
+        <p>CONTROL PANEL • MOBILE VERSION</p>
+    </header>
+
+    <div class="section-title">ระบบควบคุม</div>
+
+    <div class="card">
+        <div class="row">
+            <div>
+                <div class="label">ล็อกหัว 99.90%</div>
+                <div class="description">ปุ่มควบคุมสถานะบนเว็บไซต์</div>
+            </div>
+
+            <button
+                class="toggle"
+                type="button"
+                aria-pressed="false"
+                onclick="toggleFeature(this)"
+            >ปิด</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="row">
+            <div>
+                <div class="label">ยิงตัวขึ้นหัว</div>
+                <div class="description">ปุ่มควบคุมสถานะบนเว็บไซต์</div>
+            </div>
+
+            <button
+                class="toggle"
+                type="button"
+                aria-pressed="false"
+                onclick="toggleFeature(this)"
+            >ปิด</button>
+        </div>
+    </div>
+
+    <div class="card anti-ban">
+        <div class="row">
+            <div>
+                <div class="label">ANTI-BAN PROTECTION</div>
+                <div class="description">ข้อความสถานะบนเว็บไซต์</div>
+            </div>
+
+            <button
+                class="toggle"
+                type="button"
+                aria-pressed="false"
+                onclick="toggleFeature(this)"
+            >ปิด</button>
+        </div>
+
+        <div class="status success">
+            🛡️ ระบบป้องกันแบน: ANTI-BAN PROTECTION
+            <br>
+            สถานะที่แสดงบนหน้าเว็บเท่านั้น
+        </div>
+    </div>
+
+    <div class="section-title">ตรวจสอบ UID</div>
+
+    <div class="card">
+        <input
+            id="uidInput"
+            class="field"
+            type="text"
+            inputmode="numeric"
+            placeholder="กรอก UID เกม"
+        >
+
+        <button class="action" type="button" onclick="checkUID()">
+            ตรวจสอบ UID
+        </button>
+
+        <div id="uidStatus" class="status">
+            รอกรอก UID
+        </div>
+    </div>
+
+    <div class="section-title">อัปโหลดไฟล์</div>
+
+    <div class="card">
+        <input
+            id="fileInput"
+            class="field"
+            type="file"
+            accept=".txt,.json,.png,.jpg,.jpeg,.zip"
+        >
+
+        <div id="fileStatus" class="status">
+            ยังไม่ได้เลือกไฟล์
+        </div>
+
+        <button class="action" type="button" onclick="processFile()">
+            ประมวลผลไฟล์
+        </button>
+    </div>
+
+    <div class="section-title">เปิดเกม</div>
+
+    <div class="card">
+        <button class="action" type="button" onclick="openGame()">
+            เปิด Free Fire
+        </button>
+
+        <div id="gameStatus" class="status">
+            พร้อมใช้งาน
+        </div>
+    </div>
+
+    <button
+        class="action secondary"
+        type="button"
+        onclick="logout()"
+        style="margin-top:20px"
+    >
+        ออกจากแผงควบคุม
+    </button>
+
+    <footer>PC ZONE PANEL © 2026</footer>
+
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite">
+    <div class="toast-title" id="toastTitle">PC ZONE</div>
+    <div id="toastMessage">แจ้งเตือน</div>
+</div>
+
+<script>
+
+/*
+  คีย์สำหรับทดลองหน้าเว็บเท่านั้น:
+  PCZONE-DEMO-2026
+
+  คีย์นี้ไม่ได้มีระบบวันหมดอายุและไม่ปลอดภัย
+  สำหรับใช้งานจริงต้องตรวจสอบคีย์ผ่านเซิร์ฟเวอร์
+*/
+
+const DEMO_KEY = "PCZONE-DEMO-2026";
+
+let audioContext = null;
+let toastTimer = null;
+
+function playSound() {
+    try {
+        const AudioContextClass =
+            window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextClass) return;
+
+        if (!audioContext) {
+            audioContext = new AudioContextClass();
+        }
+
+        if (audioContext.state === "suspended") {
+            audioContext.resume();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(
+            880,
+            audioContext.currentTime
+        );
+
+        gain.gain.setValueAtTime(
+            0.15,
+            audioContext.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioContext.currentTime + 0.3
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.3);
+
+    } catch (error) {
+        console.log("ไม่สามารถเล่นเสียงได้", error);
+    }
+}
+
+function showToast(title, message) {
+    const toast = document.getElementById("toast");
+
+    document.getElementById("toastTitle").textContent = title;
+    document.getElementById("toastMessage").textContent = message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+}
+
+function verifyKey() {
+    const input = document.getElementById("keyInput");
+    const error = document.getElementById("error");
+
+    playSound();
+
+    if (!input.value.trim()) {
+        error.textContent = "กรุณากรอกคีย์";
+        return;
+    }
+
+    if (input.value.trim() !== DEMO_KEY) {
+        error.textContent = "คีย์ไม่ถูกต้อง";
+        input.value = "";
+        input.focus();
+        return;
+    }
+
+    error.textContent = "";
+
+    document.getElementById("keyPage").classList.add("hidden");
+    document.getElementById("panelPage").classList.remove("hidden");
+
+    window.scrollTo(0, 0);
+
+    playSound();
+    showToast("✓ PC ZONE", "เข้าสู่แผงควบคุมแล้ว");
+}
+
+document.getElementById("keyInput").addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+        verifyKey();
+    }
+});
+
+function toggleFeature(button) {
+    const enabled = button.classList.toggle("on");
+
+    button.textContent = enabled ? "เปิด" : "ปิด";
+
+    button.setAttribute(
+        "aria-pressed",
+        enabled ? "true" : "false"
+    );
+
+    playSound();
+
+    const name = button.closest(".card")
+        .querySelector(".label").textContent;
+
+    showToast(
+        enabled ? "✓ เปิดใช้งาน" : "ปิดใช้งาน",
+        name + (enabled ? " : เปิด" : " : ปิด")
+    );
+}
+
+function checkUID() {
+    const uid = document.getElementById("uidInput").value.trim();
+    const status = document.getElementById("uidStatus");
+
+    playSound();
+
+    if (!/^\d{5,20}$/.test(uid)) {
+        status.textContent = "กรุณากรอก UID ตัวเลข 5–20 หลัก";
+        status.classList.remove("success");
+        return;
+    }
+
+    status.textContent =
+        "✓ รูปแบบ UID ถูกต้อง แต่ยังไม่ได้ตรวจสอบกับเซิร์ฟเวอร์เกม";
+
+    status.classList.add("success");
+
+    playSound();
+    showToast("✓ ตรวจสอบรูปแบบแล้ว", "UID ผ่านการตรวจสอบรูปแบบ");
+}
+
+document.getElementById("fileInput").addEventListener("change", function() {
+    const status = document.getElementById("fileStatus");
+    const file = this.files && this.files[0];
+
+    if (!file) {
+        status.textContent = "ยังไม่ได้เลือกไฟล์";
+        return;
+    }
+
+    status.textContent =
+        "ไฟล์: " + file.name +
+        "\nขนาด: " + (file.size / 1024).toFixed(2) + " KB";
+
+    playSound();
+});
+
+function processFile() {
+    const input = document.getElementById("fileInput");
+    const status = document.getElementById("fileStatus");
+    const file = input.files && input.files[0];
+
+    playSound();
+
+    if (!file) {
+        status.textContent = "กรุณาเลือกไฟล์ก่อน";
+        return;
+    }
+
+    status.classList.remove("success");
+    status.textContent = "กำลังตรวจสอบไฟล์...";
+
+    setTimeout(() => {
+        status.textContent =
+            "✓ ประมวลผลสถานะไฟล์บนหน้าเว็บแล้ว: " +
+            file.name +
+            "\nไม่ได้ติดตั้งหรือส่งไฟล์เข้าเกม";
+
+        status.classList.add("success");
+
+        playSound();
+        showToast("✓ ประมวลผลแล้ว", file.name);
+    }, 5000);
+}
+
+function openGame() {
+    playSound();
+
+    const status = document.getElementById("gameStatus");
+
+    status.textContent = "กำลังพยายามเปิดเกม...";
+
+    setTimeout(() => {
+        status.textContent =
+            "ส่งคำขอเปิดเกมแล้ว หากไม่สำเร็จ โปรดเปิดเกมจากแอปโดยตรง";
+
+        window.location.href = "freefire://";
+    }, 5000);
+}
+
+function logout() {
+    playSound();
+
+    document.getElementById("panelPage").classList.add("hidden");
+    document.getElementById("keyPage").classList.remove("hidden");
+
+    document.getElementById("keyInput").value = "";
+    document.getElementById("error").textContent = "";
+
+    window.scrollTo(0, 0);
+}
+
+</script>
+
+</body>
+</html>
